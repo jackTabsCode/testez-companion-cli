@@ -8,6 +8,7 @@ edition = "2021"
 axum = "0.7.5"
 axum-server = "0.6.0"
 clap = { version = "4.5.4", features = ["derive"] }
+console = { version = "0.15.8", features = ["ansi-parsing"] }
 dashmap = "5.5.3"
 inquire = "0.7.4"
 serde = { version = "1.0.197", features = ["derive"] }
