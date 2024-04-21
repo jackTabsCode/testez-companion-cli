@@ -3,6 +3,7 @@ use axum::{
     Router,
 };
 use config::Config;
+use console::style;
 use dashmap::DashMap;
 use inquire::Select;
 use state::AppState;
@@ -34,7 +35,7 @@ async fn main() {
     spawn(async move {
         let start_time = Instant::now();
 
-        eprintln!("Waiting for place(s) to check in...");
+        eprintln!("{}", style("Waiting for place(s) to check in...").dim());
 
         loop {
             if start_time.elapsed() < Duration::from_secs(1) {
@@ -49,7 +50,10 @@ async fn main() {
 
             match key {
                 Some(key) => {
-                    eprintln!("Waiting for results from place {}...", key);
+                    eprintln!(
+                        "{}",
+                        style(format!("Waiting for results from place {}...", key)).dim(),
+                    );
                     state_clone.active_place.lock().await.replace(key);
                     break;
                 }
