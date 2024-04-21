@@ -2,7 +2,12 @@
 name = "testez-companion-cli"
 version = "0.1.0"
 edition = "2021"
-
+license = "MIT"
+authors = ["Jack T <jack@jackt.space>"]
+description = "CLI for TestEZ Companion"
+repository = "https://github.com/jacktabscode/testez-companion-cli"
+homepage = "https://github.com/jacktabscode/testez-companion-cli"
+readme = "README.md"
 
 [dependencies]
 axum = "0.7.5"
