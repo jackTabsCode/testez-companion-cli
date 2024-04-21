@@ -5,19 +5,19 @@ use std::process::exit;
 
 use crate::testez::{ReporterChildNode, ReporterOutput, ReporterStatus};
 
-fn print_children(children: Vec<ReporterChildNode>, indent: usize) {
+fn print_children(children: Vec<ReporterChildNode>, indent: u32) {
     for child in children {
         let styled_phrase = match child.status {
             ReporterStatus::Success => style(format!("✓ {}", child.plan_node.phrase)).green(),
             ReporterStatus::Failure => style(format!("X {}", child.plan_node.phrase)).red(),
             ReporterStatus::Skipped => style(format!("↪ {}", child.plan_node.phrase)).blue(),
         };
-        println!("{}{}", " ".repeat(indent), styled_phrase);
+        println!("{}{}", " ".repeat(indent as usize), styled_phrase);
 
         for error in child.errors {
             // Thanks Copilot!
             let indented_error: String = error.split('\n').fold(String::new(), |mut acc, line| {
-                acc.push_str(&format!("{}{}\n", " ".repeat(indent + 2), line));
+                acc.push_str(&format!("{}{}\n", " ".repeat((indent + 2) as usize), line));
                 acc
             });
             print!("{}", indented_error);
@@ -28,7 +28,8 @@ fn print_children(children: Vec<ReporterChildNode>, indent: usize) {
 }
 
 pub async fn results(Json(body): Json<Value>) {
-    let output: ReporterOutput = serde_json::from_value(body).expect("Failed to parse JSON from plugin");
+    let output: ReporterOutput =
+        serde_json::from_value(body).expect("Failed to parse JSON from plugin");
 
     print_children(output.children, 0);
 
