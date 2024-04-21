@@ -45,3 +45,4 @@ targets = [
 pr-run-mode = "skip"
 windows-archive = ".zip"
 unix-archive = ".zip"
+checksum = "false"
