@@ -7,7 +7,7 @@ use console::style;
 use dashmap::DashMap;
 use inquire::Select;
 use state::AppState;
-use std::{net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, process::exit, sync::Arc, time::Duration};
 use tokio::{fs::read_to_string, spawn, sync::Mutex, time::Instant};
 
 mod api;
@@ -40,6 +40,14 @@ async fn main() {
         loop {
             if start_time.elapsed() < Duration::from_secs(1) {
                 continue;
+            }
+
+            if start_time.elapsed() > Duration::from_secs(5) {
+                eprintln!(
+                    "{}",
+                    style("No places have reported anything. Studio might not be open?").red()
+                );
+                exit(1);
             }
 
             let key: Option<String> = match state_clone.places.len() {

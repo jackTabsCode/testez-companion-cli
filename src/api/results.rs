@@ -5,17 +5,21 @@ use serde_json::Value;
 use std::{process::exit, time::Duration};
 use tokio::{spawn, time::sleep};
 
-fn print_children(children: Vec<ReporterChildNode>, indent: u32) {
+fn print_children(children: Vec<ReporterChildNode>, indent: u32) -> bool {
+    let mut success = true;
+
     for child in children {
         let styled_phrase = match child.status {
             ReporterStatus::Success => style(format!("✓ {}", child.plan_node.phrase)).green(),
-            ReporterStatus::Failure => style(format!("X {}", child.plan_node.phrase)).red(),
+            ReporterStatus::Failure => {
+                success = false;
+                style(format!("X {}", child.plan_node.phrase)).red()
+            }
             ReporterStatus::Skipped => style(format!("↪ {}", child.plan_node.phrase)).blue(),
         };
         println!("{}{}", " ".repeat(indent as usize), styled_phrase);
 
         for error in child.errors {
-            // Thanks Copilot!
             let indented_error: String = error.split('\n').fold(String::new(), |mut acc, line| {
                 acc.push_str(&format!("{}{}\n", " ".repeat((indent + 2) as usize), line));
                 acc
@@ -23,15 +27,18 @@ fn print_children(children: Vec<ReporterChildNode>, indent: u32) {
             print!("{}", indented_error);
         }
 
-        print_children(child.children, indent + 2);
+        if !print_children(child.children, indent + 2) {
+            success = false;
+        }
     }
+    success
 }
 
 pub async fn results(Json(body): Json<Value>) -> StatusCode {
     let output: ReporterOutput =
         serde_json::from_value(body).expect("Failed to parse JSON from plugin");
 
-    print_children(output.children, 0);
+    let success = print_children(output.children, 0);
 
     println!();
 
@@ -44,7 +51,7 @@ pub async fn results(Json(body): Json<Value>) -> StatusCode {
     spawn(async move {
         sleep(Duration::from_millis(100)).await;
 
-        exit(0);
+        exit(if success { 0 } else { 1 });
     });
 
     StatusCode::OK
