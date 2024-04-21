@@ -31,7 +31,7 @@ aftman add jacktabscode/testez-companion-cli
 cargo install testez-companion-cli
 ```
 
-### Usage
+## Usage
 
 Just run `testez-companion-cli` in your terminal. If there are multiple places open, it will prompt you to select one. It will then output the results of the tests!
 
