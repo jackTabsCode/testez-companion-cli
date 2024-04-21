@@ -39,10 +39,21 @@ async fn main() {
                 continue;
             }
 
-            let key = inquire_place(Arc::clone(&state_clone));
-            state_clone.active_place.lock().await.replace(key);
+            let key: Option<String> = match state_clone.places.len() {
+                0 => None,
+                1 => Some(state_clone.places.iter().next().unwrap().key().to_string()),
+                _ => Some(inquire_place(Arc::clone(&state_clone))),
+            };
 
-            break;
+            match key {
+                Some(key) => {
+                    state_clone.active_place.lock().await.replace(key);
+                    break;
+                }
+                None => {
+                    continue;
+                }
+            }
         }
     });
 
@@ -56,7 +67,7 @@ async fn main() {
     axum_server::bind(addr)
         .serve(app.into_make_service())
         .await
-        .expect(format!("Failed to bind to {}... is the port already in use?", addr).as_str());
+        .unwrap();
 }
 
 fn inquire_place(state: Arc<AppState>) -> String {

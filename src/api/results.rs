@@ -1,9 +1,9 @@
-use axum::Json;
+use crate::testez::{ReporterChildNode, ReporterOutput, ReporterStatus};
+use axum::{http::StatusCode, Json};
 use console::style;
 use serde_json::Value;
-use std::process::exit;
-
-use crate::testez::{ReporterChildNode, ReporterOutput, ReporterStatus};
+use std::{process::exit, time::Duration};
+use tokio::{spawn, time::sleep};
 
 fn print_children(children: Vec<ReporterChildNode>, indent: u32) {
     for child in children {
@@ -27,7 +27,7 @@ fn print_children(children: Vec<ReporterChildNode>, indent: u32) {
     }
 }
 
-pub async fn results(Json(body): Json<Value>) {
+pub async fn results(Json(body): Json<Value>) -> StatusCode {
     let output: ReporterOutput =
         serde_json::from_value(body).expect("Failed to parse JSON from plugin");
 
@@ -39,5 +39,13 @@ pub async fn results(Json(body): Json<Value>) {
     println!("{} {}", style("X Failure:").red(), output.failure_count);
     println!("{} {}", style("↪ Skip:").blue(), output.skipped_count);
 
-    exit(0);
+    // This is really cursed - we need to return a status code, but we also need
+    // to exit the progam so that we don't keep receiving results.
+    spawn(async move {
+        sleep(Duration::from_millis(100)).await;
+
+        exit(0);
+    });
+
+    StatusCode::OK
 }
