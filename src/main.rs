@@ -34,6 +34,8 @@ async fn main() {
     spawn(async move {
         let start_time = Instant::now();
 
+        eprintln!("Waiting for place(s) to check in...");
+
         loop {
             if start_time.elapsed() < Duration::from_secs(1) {
                 continue;
@@ -47,6 +49,7 @@ async fn main() {
 
             match key {
                 Some(key) => {
+                    eprintln!("Waiting for results from place {}...", key);
                     state_clone.active_place.lock().await.replace(key);
                     break;
                 }
