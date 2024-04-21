@@ -7,6 +7,8 @@ This is a quick and dirty CLI to interface with [TestEZ Companion](https://githu
 
 You'll need the plugin for this to work.
 
+![SCR-20240421-cxmd](https://github.com/jackTabsCode/testez-companion-cli/assets/44332148/246a6cd6-5b65-47a1-8c74-9baa7487448e)
+
 ## Features
 
 -   Easily run tests from the command line
