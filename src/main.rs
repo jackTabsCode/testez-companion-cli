@@ -56,7 +56,7 @@ async fn main() {
     axum_server::bind(addr)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .expect(format!("Failed to bind to {}... is the port already in use?", addr).as_str());
 }
 
 fn inquire_place(state: Arc<AppState>) -> String {
@@ -75,7 +75,7 @@ fn inquire_place(state: Arc<AppState>) -> String {
 
     let selected = Select::new("Select a place to run tests on:", options)
         .prompt()
-        .unwrap();
+        .expect("Failed to prompt user for place selection");
 
     let key = selected
         .split_whitespace()

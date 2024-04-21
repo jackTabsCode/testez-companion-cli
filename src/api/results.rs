@@ -28,7 +28,7 @@ fn print_children(children: Vec<ReporterChildNode>, indent: usize) {
 }
 
 pub async fn results(Json(body): Json<Value>) {
-    let output: ReporterOutput = serde_json::from_value(body).unwrap();
+    let output: ReporterOutput = serde_json::from_value(body).expect("Failed to parse JSON from plugin");
 
     print_children(output.children, 0);
 
