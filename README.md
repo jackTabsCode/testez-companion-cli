@@ -14,7 +14,7 @@ You'll need the plugin for this to work, which is [bundled in the latest release
 -   Easily run tests from the command line
 -   Supports multiple places
 -   Pretty prints results
--   ~~Prints logs from Studio~~ (not implemented yet)
+-   Prints logs and other output from Studio
 -   ~~Installs the plugin for you~~ (not implemented yet)
 
 ## Installation
