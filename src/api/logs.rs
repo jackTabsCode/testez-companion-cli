@@ -13,18 +13,6 @@ enum MessageType {
     Error = 3,
 }
 
-impl From<u8> for MessageType {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => MessageType::Output,
-            1 => MessageType::Info,
-            2 => MessageType::Warning,
-            3 => MessageType::Error,
-            _ => MessageType::Output,
-        }
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct Log {
