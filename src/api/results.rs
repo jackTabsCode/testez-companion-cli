@@ -2,7 +2,7 @@ use crate::testez::{ReporterChildNode, ReporterOutput, ReporterStatus};
 use axum::{http::StatusCode, Json};
 use console::style;
 use serde_json::Value;
-use std::{process::exit, time::Duration};
+use std::{fmt::Write, process::exit, time::Duration};
 use tokio::{spawn, time::sleep};
 
 fn print_children(children: Vec<ReporterChildNode>, indent: u32) -> bool {
@@ -21,7 +21,14 @@ fn print_children(children: Vec<ReporterChildNode>, indent: u32) -> bool {
 
         for error in child.errors {
             let indented_error: String = error.split('\n').fold(String::new(), |mut acc, line| {
-                acc.push_str(&format!("{}{}\n", " ".repeat((indent + 2) as usize), line));
+                writeln!(
+                    acc,
+                    "{:indent$}{}",
+                    " ",
+                    line,
+                    indent = (indent + 2) as usize
+                )
+                .unwrap();
                 acc
             });
             print!("{}", indented_error);
@@ -46,7 +53,7 @@ pub async fn results(Json(body): Json<Value>) -> StatusCode {
     println!("{} {}", style("X Failure:").red(), output.failure_count);
     println!("{} {}", style("↪ Skip:").blue(), output.skipped_count);
 
-    // This is really cursed - we need to return a status code, but we also need
+    // This is mildly cursed - we need to return a status code, but we also need
     // to exit the progam so that we don't keep receiving results.
     spawn(async move {
         sleep(Duration::from_millis(100)).await;

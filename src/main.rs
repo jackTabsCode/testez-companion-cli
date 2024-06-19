@@ -8,7 +8,12 @@ use dashmap::DashMap;
 use inquire::Select;
 use state::AppState;
 use std::{net::SocketAddr, process::exit, sync::Arc, time::Duration};
-use tokio::{fs::read_to_string, spawn, sync::Mutex, time::Instant};
+use tokio::{
+    fs::read_to_string,
+    spawn,
+    sync::Mutex,
+    time::{sleep, Instant},
+};
 
 mod api;
 mod config;
@@ -34,14 +39,11 @@ async fn main() {
     let state_clone = Arc::clone(&state);
     spawn(async move {
         let start_time = Instant::now();
+        sleep(Duration::from_secs(1)).await;
 
         eprintln!("{}", style("Waiting for place(s) to check in...").dim());
 
         loop {
-            if start_time.elapsed() < Duration::from_secs(1) {
-                continue;
-            }
-
             if start_time.elapsed() > Duration::from_secs(5) {
                 eprintln!(
                     "{}",
