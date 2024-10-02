@@ -25,7 +25,7 @@ pub struct PlanNode {
     pub modifier: ModifierType,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum ReporterStatus {
     Success,
     Failure,

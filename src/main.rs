@@ -2,6 +2,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
+use clap::Parser;
 use config::Config;
 use console::style;
 use dashmap::DashMap;
@@ -20,8 +21,16 @@ mod config;
 mod state;
 mod testez;
 
+#[derive(Parser)]
+struct Cli {
+    #[arg(long)]
+    pub only_print_failures: bool,
+}
+
 #[tokio::main]
 async fn main() {
+    let cli = Cli::parse();
+
     let config: Arc<Config> = {
         let contents = read_to_string("testez-companion.toml")
             .await
@@ -34,6 +43,7 @@ async fn main() {
         config,
         places: DashMap::new(),
         active_place: Mutex::new(None),
+        only_log_failures: cli.only_print_failures,
     });
 
     let state_clone = Arc::clone(&state);

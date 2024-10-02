@@ -14,4 +14,6 @@ pub struct AppState {
 
     pub places: DashMap<String, Place>,
     pub active_place: Mutex<Option<String>>,
+
+    pub only_log_failures: bool,
 }

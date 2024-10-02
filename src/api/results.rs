@@ -1,14 +1,21 @@
-use crate::testez::{ReporterChildNode, ReporterOutput, ReporterStatus};
-use axum::{http::StatusCode, Json};
+use crate::{
+    state::AppState,
+    testez::{ReporterChildNode, ReporterOutput, ReporterStatus},
+};
+use axum::{extract::State, http::StatusCode, Json};
 use console::style;
 use serde_json::Value;
-use std::{fmt::Write, process::exit, time::Duration};
+use std::{fmt::Write, process::exit, sync::Arc, time::Duration};
 use tokio::{spawn, time::sleep};
 
-fn print_children(children: Vec<ReporterChildNode>, indent: u32) -> bool {
+fn print_children(state: &Arc<AppState>, children: Vec<ReporterChildNode>, indent: u32) -> bool {
     let mut success = true;
 
     for child in children {
+        if state.only_log_failures && child.status != ReporterStatus::Failure {
+            continue;
+        }
+
         let styled_phrase = match child.status {
             ReporterStatus::Success => style(format!("✓ {}", child.plan_node.phrase)).green(),
             ReporterStatus::Failure => {
@@ -34,18 +41,18 @@ fn print_children(children: Vec<ReporterChildNode>, indent: u32) -> bool {
             print!("{}", indented_error);
         }
 
-        if !print_children(child.children, indent + 2) {
+        if !print_children(state, child.children, indent + 2) {
             success = false;
         }
     }
     success
 }
 
-pub async fn results(Json(body): Json<Value>) -> StatusCode {
+pub async fn results(State(state): State<Arc<AppState>>, Json(body): Json<Value>) -> StatusCode {
     let output: ReporterOutput =
         serde_json::from_value(body).expect("Failed to parse JSON from plugin");
 
-    let success = print_children(output.children, 0);
+    let success = print_children(&state, output.children, 0);
 
     println!();
 
